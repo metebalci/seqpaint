@@ -2,10 +2,6 @@
 
 Visualize nucleic acid and protein sequences as images.
 
-## Status
-
-v0.7.0. Subcommand CLI with `fna`, `faa`, `gc`, `dotplot`, `diff`, `stacked`; Hilbert / Z-order / raster layouts; four named palettes per alphabet; k-mer coloring; GFF annotation overlay; PNG / SVG / HTML outputs (HTML has hover-tooltip with position + context); transparent `.gz` / `.bgz` reading; NCBI accession fetch.
-
 ## Install
 
 ```
