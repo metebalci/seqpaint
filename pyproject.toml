@@ -32,8 +32,6 @@ bgzf = [
 ]
 dev = [
   "setuptools >= 77.0",
-  "build",
-  "twine",
   "pytest",
   "ruff",
   "mypy",
