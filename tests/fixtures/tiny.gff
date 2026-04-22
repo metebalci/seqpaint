@@ -1,0 +1,6 @@
+##gff-version 3
+# a test annotation file for tiny.fna (24 bases)
+tiny-test-seq	test	gene	1	12	.	+	.	ID=gene1;Name=example
+tiny-test-seq	test	CDS	4	9	.	+	0	ID=cds1;Parent=gene1
+tiny-test-seq	test	five_prime_UTR	1	3	.	+	.	ID=utr5_1;Parent=gene1
+tiny-test-seq	test	three_prime_UTR	10	12	.	+	.	ID=utr3_1;Parent=gene1

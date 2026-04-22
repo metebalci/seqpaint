@@ -1,0 +1,170 @@
+from __future__ import annotations
+
+from collections.abc import Mapping
+from dataclasses import dataclass, replace
+
+from .core import RGBA
+
+_NUCLEIC_DEFAULT: dict[str, RGBA] = {
+    "a": (0xFF, 0x00, 0x00, 0xFF),
+    "g": (0x00, 0xFF, 0x00, 0xFF),
+    "c": (0x00, 0x00, 0xFF, 0xFF),
+    "t": (0x87, 0xCE, 0xFA, 0xFF),
+    "n": (0xFF, 0xFF, 0xFF, 0xFF),
+}
+
+# IGV-style: A green, C blue, G black-ish, T red.
+_NUCLEIC_NATURE: dict[str, RGBA] = {
+    "a": (0x00, 0xC0, 0x00, 0xFF),
+    "c": (0x00, 0x00, 0xC0, 0xFF),
+    "g": (0x30, 0x30, 0x30, 0xFF),
+    "t": (0xC0, 0x00, 0x00, 0xFF),
+    "n": (0xA0, 0xA0, 0xA0, 0xFF),
+}
+
+# Okabe-Ito colorblind-safe palette.
+_NUCLEIC_COLORBLIND: dict[str, RGBA] = {
+    "a": (0x00, 0x9E, 0x73, 0xFF),  # bluish green
+    "c": (0x56, 0xB4, 0xE9, 0xFF),  # sky blue
+    "g": (0xE6, 0x9F, 0x00, 0xFF),  # orange
+    "t": (0xCC, 0x79, 0xA7, 0xFF),  # reddish purple
+    "n": (0x99, 0x99, 0x99, 0xFF),
+}
+
+_NUCLEIC_GRAYSCALE: dict[str, RGBA] = {
+    "a": (0x30, 0x30, 0x30, 0xFF),
+    "c": (0x70, 0x70, 0x70, 0xFF),
+    "g": (0xB0, 0xB0, 0xB0, 0xFF),
+    "t": (0xF0, 0xF0, 0xF0, 0xFF),
+    "n": (0x80, 0x80, 0x80, 0xFF),
+}
+
+_AMINO_DEFAULT: dict[str, RGBA] = {
+    "a": (0x69, 0x69, 0x69, 0xFF), "b": (0x8B, 0x45, 0x13, 0xFF),
+    "c": (0x80, 0x80, 0x00, 0xFF), "d": (0x48, 0x3D, 0x8B, 0xFF),
+    "e": (0x00, 0x80, 0x00, 0xFF), "f": (0x00, 0x8B, 0x8B, 0xFF),
+    "g": (0x00, 0x00, 0x80, 0xFF), "h": (0x7F, 0x00, 0x7F, 0xFF),
+    "i": (0xB0, 0x30, 0x60, 0xFF), "j": (0xFF, 0x45, 0x00, 0xFF),
+    "k": (0xFF, 0x8C, 0x00, 0xFF), "l": (0x00, 0x00, 0xCD, 0xFF),
+    "m": (0x00, 0xFF, 0x00, 0xFF), "n": (0xDC, 0x14, 0x3C, 0xFF),
+    "o": (0x00, 0xFF, 0xFF, 0xFF), "p": (0x00, 0xBF, 0xFF, 0xFF),
+    "q": (0xAD, 0xFF, 0x2F, 0xFF), "r": (0xFF, 0x00, 0xFF, 0xFF),
+    "s": (0x1E, 0x90, 0xFF, 0xFF), "t": (0xF0, 0xE6, 0x8C, 0xFF),
+    "u": (0xFF, 0xFF, 0x54, 0xFF), "v": (0xB0, 0xE0, 0xE6, 0xFF),
+    "w": (0x90, 0xEE, 0x90, 0xFF), "x": (0xEE, 0x82, 0xEE, 0xFF),
+    "y": (0xFF, 0x14, 0x93, 0xFF), "z": (0xFF, 0xA0, 0x7A, 0xFF),
+    "*": (0xFF, 0xC0, 0xCB, 0xFF),
+}
+
+# Zappo-like property classes.
+_AMINO_PROPERTY_CLASSES = {
+    "aliphatic": "ilvam",
+    "aromatic": "fwy",
+    "positive": "krh",
+    "negative": "de",
+    "hydrophilic": "stnq",
+    "cysteine": "c",
+    "glycine": "g",
+    "proline": "p",
+    "other": "buzjox*",
+}
+
+
+def _fill_amino(class_colors: dict[str, RGBA]) -> dict[str, RGBA]:
+    out: dict[str, RGBA] = {}
+    for cls, residues in _AMINO_PROPERTY_CLASSES.items():
+        for r in residues:
+            out[r] = class_colors[cls]
+    return out
+
+
+_AMINO_NATURE = _fill_amino(
+    {
+        "aliphatic": (0xFF, 0xA5, 0xB0, 0xFF),
+        "aromatic": (0xFF, 0xC8, 0x32, 0xFF),
+        "positive": (0x32, 0x78, 0xFF, 0xFF),
+        "negative": (0xE0, 0x32, 0x32, 0xFF),
+        "hydrophilic": (0x32, 0xB0, 0x64, 0xFF),
+        "cysteine": (0xFF, 0xFF, 0x00, 0xFF),
+        "glycine": (0xFF, 0xFF, 0xFF, 0xFF),
+        "proline": (0xB0, 0x78, 0xE0, 0xFF),
+        "other": (0x80, 0x80, 0x80, 0xFF),
+    }
+)
+
+_AMINO_COLORBLIND = _fill_amino(
+    {
+        "aliphatic": (0xE6, 0x9F, 0x00, 0xFF),
+        "aromatic": (0xF0, 0xE4, 0x42, 0xFF),
+        "positive": (0x00, 0x72, 0xB2, 0xFF),
+        "negative": (0xD5, 0x5E, 0x00, 0xFF),
+        "hydrophilic": (0x00, 0x9E, 0x73, 0xFF),
+        "cysteine": (0xCC, 0x79, 0xA7, 0xFF),
+        "glycine": (0xFF, 0xFF, 0xFF, 0xFF),
+        "proline": (0x56, 0xB4, 0xE9, 0xFF),
+        "other": (0x99, 0x99, 0x99, 0xFF),
+    }
+)
+
+
+def _amino_grayscale() -> dict[str, RGBA]:
+    keys = "acdefghiklmnpqrstvwy"
+    out: dict[str, RGBA] = {}
+    for i, k in enumerate(keys):
+        v = 30 + round(i * (220 / (len(keys) - 1)))
+        out[k] = (v, v, v, 0xFF)
+    for extra in "bjzux*":
+        out[extra] = (0x80, 0x80, 0x80, 0xFF)
+    return out
+
+
+_AMINO_GRAYSCALE = _amino_grayscale()
+
+
+_NUCLEIC_PALETTES: dict[str, dict[str, RGBA]] = {
+    "default": _NUCLEIC_DEFAULT,
+    "nature": _NUCLEIC_NATURE,
+    "colorblind-safe": _NUCLEIC_COLORBLIND,
+    "grayscale": _NUCLEIC_GRAYSCALE,
+}
+
+_AMINO_PALETTES: dict[str, dict[str, RGBA]] = {
+    "default": _AMINO_DEFAULT,
+    "nature": _AMINO_NATURE,
+    "colorblind-safe": _AMINO_COLORBLIND,
+    "grayscale": _AMINO_GRAYSCALE,
+}
+
+
+NAMED_PALETTES: dict[str, dict[str, dict[str, RGBA]]] = {
+    "nucleic": _NUCLEIC_PALETTES,
+    "amino": _AMINO_PALETTES,
+}
+
+
+@dataclass(frozen=True)
+class Palette:
+    colors: Mapping[str, RGBA]
+    fallback: RGBA = (0xFF, 0xFF, 0xFF, 0xFF)
+
+    def get(self, key: str) -> RGBA:
+        return self.colors.get(key, self.fallback)
+
+    def with_overrides(self, overrides: Mapping[str, RGBA]) -> Palette:
+        merged = {**self.colors, **overrides}
+        return replace(self, colors=merged)
+
+    @classmethod
+    def named(cls, name: str, alphabet: str = "nucleic") -> Palette:
+        try:
+            table = NAMED_PALETTES[alphabet][name]
+        except KeyError as e:
+            raise ValueError(
+                f"unknown palette {name!r} for alphabet {alphabet!r}; "
+                f"available: {list(NAMED_PALETTES[alphabet])}"
+            ) from e
+        fallback = table.get("n", (0xFF, 0xFF, 0xFF, 0xFF))
+        return cls(colors=dict(table), fallback=fallback)
+
+
+PALETTE_NAMES = ("default", "nature", "colorblind-safe", "grayscale")

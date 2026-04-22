@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools >= 77.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+version = "0.7.0"
+name = "seqpaint"
+license = "GPL-3.0-only"
+license-files = ["LICENSE"]
+dependencies = [
+  "Pillow >= 11.1.0"
+]
+requires-python = ">= 3.12"
+authors = [
+  {name = "Mete Balci", email = "metebalci@gmail.com"},
+]
+description = "Visualize nucleic acid and protein sequences as images"
+readme = {file = "README.md", content-type = "text/markdown"}
+keywords = ["fasta", "fna", "faa", "sequence", "visualization", "bioinformatics"]
+classifiers = [
+  'Development Status :: 3 - Alpha',
+  'Environment :: Console',
+  'Programming Language :: Python :: 3',
+  'Operating System :: OS Independent',
+  'Topic :: Scientific/Engineering :: Bio-Informatics',
+  'Topic :: Utilities',
+]
+
+[project.optional-dependencies]
+bgzf = [
+  "biopython",
+]
+dev = [
+  "setuptools >= 77.0",
+  "build",
+  "twine",
+  "pytest",
+  "ruff",
+  "mypy",
+]
+
+[project.scripts]
+seqpaint = "seqpaint.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/metebalci/seqpaint"
+Repository = "https://github.com/metebalci/seqpaint.git"
+Issues = "https://github.com/metebalci/seqpaint/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.12"
+check_untyped_defs = true
+files = ["src"]
