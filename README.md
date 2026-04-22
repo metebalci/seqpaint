@@ -14,7 +14,8 @@ For development (tests, lint, type-check):
 git clone https://github.com/metebalci/seqpaint.git
 cd seqpaint
 python -m venv .venv
-.venv/bin/pip install -e '.[dev]'
+source .venv/bin/activate
+pip install -e '.[dev]'
 ```
 
 ## Quick example
