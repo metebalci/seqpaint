@@ -2,8 +2,6 @@
 
 Visualize nucleic acid and protein sequences as images.
 
-Successor to [`fasta2png`](https://github.com/metebalci/fasta2png) — same core idea (one colored square per base/residue), broader ambitions: new layouts, comparative views, richer output formats.
-
 ## Status
 
 v0.7.0. Subcommand CLI with `fna`, `faa`, `gc`, `dotplot`, `diff`, `stacked`; Hilbert / Z-order / raster layouts; four named palettes per alphabet; k-mer coloring; GFF annotation overlay; PNG / SVG / HTML outputs (HTML has hover-tooltip with position + context); transparent `.gz` / `.bgz` reading; NCBI accession fetch.
